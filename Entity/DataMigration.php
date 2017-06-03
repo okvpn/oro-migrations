@@ -1,12 +1,12 @@
 <?php
 
-namespace Oro\Bundle\MigrationBundle\Entity;
+namespace Okvpn\Bundle\MigrationBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table("oro_migrations", indexes={
- *     @ORM\Index(name="idx_oro_migrations", columns={"bundle"})
+ * @ORM\Table("okvpn_migrations", indexes={
+ *     @ORM\Index(name="idx_okvpn_migrations", columns={"bundle"})
  * })
  * @ORM\Entity()
  */

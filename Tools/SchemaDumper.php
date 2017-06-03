@@ -1,13 +1,13 @@
 <?php
 
-namespace Oro\Bundle\MigrationBundle\Tools;
+namespace Okvpn\Bundle\MigrationBundle\Tools;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
 
 class SchemaDumper extends AbstractVisitor
 {
-    const SCHEMA_TEMPLATE = 'OroMigrationBundle::schema-template.php.twig';
+    const SCHEMA_TEMPLATE = 'OkvpnMigrationBundle::schema-template.php.twig';
     const DEFAULT_CLASS_NAME = 'AllMigration';
     const DEFAULT_VERSION = 'v1_0';
 

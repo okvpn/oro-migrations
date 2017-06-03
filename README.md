@@ -1,7 +1,57 @@
-OroMigrationBundle
+OkvpnMigrationBundle
 ==================
 
 Database structure and data manipulator.
+
+![OkvpnMigrationBundle](./Resources/doc/okvpn-migration.png)
+
+Purpose
+-------
+MigrationBundle is subtree split of the [OroMigrationBundle](https://github.com/orocrm/platform/tree/master/src/Oro/Bundle/MigrationBundle).
+The ORO developers made a great tool, but it has very strong dependencies on other ORO Platform bundles (like as [EmailBundle, MessageQueue, SearchBundle](https://github.com/orocrm/platform/blob/2.1/src/Oro/Bundle/MigrationBundle/Command/LoadDataFixturesCommand.php#L13-L17)  etc.). So we forked this bundle and removed BAP dependencies, that makes this bundle more reusable in non-Oro Platform projects
+
+Features
+--------
+- Write database migrations using database agnostic PHP code.
+- Locate migrations inside each bundle.
+- Compatible with different versions of Doctrine and Symfony.
+- Load demo data fixture.
+- Extensions for database structure migrations.
+- Ability to disable event-listener during the load fixtures.
+- Events before and after migrations.
+
+Installations
+-------------
+
+Install using composer:
+```
+composer require okvpn/migration-bundle
+```
+
+And add this bundle to your AppKernel:
+
+```php
+<?php
+
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Config\Loader\LoaderInterface;
+
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        $bundles = array(
+            new Okvpn\Bundle\MigrationBundle\OkvpnMigrationBundle(),
+            //...
+        );
+    }
+    
+    public function registerContainerConfiguration(LoaderInterface $loader)
+    {
+        $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
+    }
+}
+```
 
 Database structure migrations
 -----------------------------
@@ -30,10 +80,10 @@ Example of migration file:
 namespace Acme\Bundle\TestBundle\Migrations\Schema\v1_0;
 
 use Doctrine\DBAL\Schema\Schema;
-use Oro\Bundle\MigrationBundle\Migration\Migration;
-use Oro\Bundle\MigrationBundle\Migration\QueryBag;
-use Oro\Bundle\MigrationBundle\Migration\Extension\RenameExtension;
-use Oro\Bundle\MigrationBundle\Migration\Extension\RenameExtensionAwareInterface;
+use Okvpn\Bundle\MigrationBundle\Migration\Migration;
+use Okvpn\Bundle\MigrationBundle\Migration\QueryBag;
+use Okvpn\Bundle\MigrationBundle\Migration\Extension\RenameExtension;
+use Okvpn\Bundle\MigrationBundle\Migration\Extension\RenameExtensionAwareInterface;
 
 class AcmeTestBundle implements Migration, RenameExtensionAwareInterface
 {
@@ -91,8 +141,8 @@ Example of install migration file:
 namespace Acme\Bundle\TestBundle\Migrations\Schema;
 
 use Doctrine\DBAL\Schema\Schema;
-use Oro\Bundle\MigrationBundle\Migration\Installation;
-use Oro\Bundle\MigrationBundle\Migration\QueryBag;
+use Okvpn\Bundle\MigrationBundle\Migration\Installation;
+use Okvpn\Bundle\MigrationBundle\Migration\QueryBag;
 
 class AcmeTestBundleInstaller implements Installation
 {
@@ -118,7 +168,7 @@ class AcmeTestBundleInstaller implements Installation
 
 ```
 
-To run migrations, there is **oro:migration:load** command. This command collects migration files from bundles, sorts them by version number and applies changes.
+To run migrations, there is **okvpn:migration:load** command. This command collects migration files from bundles, sorts them by version number and applies changes.
 
 This command supports some additional options:
 
@@ -128,7 +178,7 @@ This command supports some additional options:
  - **bundles** - A list of bundles to load data from. If option is not set, migrations will be taken from all bundles;
  - **exclude** - A list of bundle names which migrations should be skipped.
 
-Also there is **oro:migration:dump** command to help in creation installation files. This command outputs current database structure as a plain sql or as `Doctrine\DBAL\Schema\Schema` queries.
+Also there is **okvpn:migration:dump** command to help in creation installation files. This command outputs current database structure as a plain sql or as `Doctrine\DBAL\Schema\Schema` queries.
 
 This command supports some additional options:
 
@@ -141,16 +191,9 @@ Good practice for bundle is to have installation file for current version and mi
 Next algorithm may be used for new versions of your bundle:
 
  - Create new migration
- - Apply it with **oro:migration:load**
- - Generate fresh installation file with **oro:migration:dump**
+ - Apply it with **okvpn:migration:load**
+ - Generate fresh installation file with **okvpn:migration:dump**
  - If required - add migration extensions calls to generated installation.
-
-Examples of database structure migrations
------------------------------------------
-
- - [Simple migration](../UserBundle/Migrations/Schema/v1_0/OroUserBundle.php)
- - [Installer](../InstallerBundle/Migrations/Schema)
- - [Complex migration](../EntityConfigBundle/Migrations/Schema/v1_2)
 
 
 Extensions for database structure migrations
@@ -162,10 +205,10 @@ Sometime you cannot use standard Doctrine methods for database structure modific
 namespace Acme\Bundle\TestBundle\Migrations\Schema\v1_0;
 
 use Doctrine\DBAL\Schema\Schema;
-use Oro\Bundle\MigrationBundle\Migration\Migration;
-use Oro\Bundle\MigrationBundle\Migration\QueryBag;
-use Oro\Bundle\MigrationBundle\Migration\Extension\RenameExtension;
-use Oro\Bundle\MigrationBundle\Migration\Extension\RenameExtensionAwareInterface;
+use Okvpn\Bundle\MigrationBundle\Migration\Migration;
+use Okvpn\Bundle\MigrationBundle\Migration\QueryBag;
+use Okvpn\Bundle\MigrationBundle\Migration\Extension\RenameExtension;
+use Okvpn\Bundle\MigrationBundle\Migration\Extension\RenameExtensionAwareInterface;
 
 class AcmeTestBundle implements Migration, RenameExtensionAwareInterface
 {
@@ -214,7 +257,7 @@ To create your own extension you need too do the following simple steps:
 namespace Acme\Bundle\TestBundle\Migration\Extension;
 
 use Doctrine\DBAL\Schema\Schema;
-use Oro\Bundle\MigrationBundle\Migration\QueryBag;
+use Okvpn\Bundle\MigrationBundle\Migration\QueryBag;
 
 class MyExtension
 {
@@ -255,7 +298,7 @@ services:
     acme_test.migration.extension.my:
         class: %acme_test.migration.extension.my.class%
         tags:
-            - { name: oro_migration.extension, extension_name: test /*, priority: -10 - priority attribute is optional an can be helpful if you need to override existing extension */ }
+            - { name: okvpn_migration.extension, extension_name: test /*, priority: -10 - priority attribute is optional an can be helpful if you need to override existing extension */ }
 ```
 
 If you need an access to the database platform or the name generator you extension class should implement [DatabasePlatformAwareInterface][3] or [NameGeneratorAwareInterface][4] appropriately.
@@ -266,7 +309,7 @@ Data fixtures
 
 Symfony allows to load data using data fixtures. But these fixtures are run each time when `doctrine:fixtures:load` command is executed.
 
-To avoid loading the same fixture several time, **oro:migration:data:load** command was created. This command guarantees that each data fixture will be loaded only once.
+To avoid loading the same fixture several time, **okvpn:migration:data:load** command was created. This command guarantees that each data fixture will be loaded only once.
 
 This command supports two types of migration files: `main` data fixtures and `demo` data fixtures. During an installation, user can select to load or not demo data.
 
@@ -292,7 +335,7 @@ namespace Acme\DemoBundle\Migrations\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
-use Oro\Bundle\MigrationBundle\Fixture\VersionedFixtureInterface;
+use Okvpn\Bundle\MigrationBundle\Fixture\VersionedFixtureInterface;
 
 class LoadSomeDataFixture extends AbstractFixture implements VersionedFixtureInterface
 {
@@ -328,8 +371,8 @@ namespace Acme\DemoBundle\Migrations\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
-use Oro\Bundle\MigrationBundle\Fixture\VersionedFixtureInterface;
-use Oro\Bundle\MigrationBundle\Fixture\RequestVersionFixtureInterface;
+use Okvpn\Bundle\MigrationBundle\Fixture\VersionedFixtureInterface;
+use Okvpn\Bundle\MigrationBundle\Fixture\RequestVersionFixtureInterface;
 
 class LoadSomeDataFixture extends AbstractFixture implements VersionedFixtureInterface, LoadedFixtureVersionAwareInterface
 {

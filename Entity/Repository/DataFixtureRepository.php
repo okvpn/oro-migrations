@@ -1,9 +1,9 @@
 <?php
 
-namespace Oro\Bundle\MigrationBundle\Entity\Repository;
+namespace Okvpn\Bundle\MigrationBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Oro\Bundle\MigrationBundle\Entity\DataFixture;
+use Okvpn\Bundle\MigrationBundle\Entity\DataFixture;
 
 class DataFixtureRepository extends EntityRepository
 {
@@ -46,7 +46,7 @@ class DataFixtureRepository extends EntityRepository
     {
         $qb = $this->_em
             ->createQueryBuilder()
-            ->update('OroMigrationBundle:DataFixture', 'm')
+            ->update('OkvpnMigrationBundle:DataFixture', 'm')
             ->where($where);
 
         foreach ($updateFields as $fieldName => $fieldValue) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\MigrationBundle\Twig;
+namespace Okvpn\Bundle\MigrationBundle\Twig;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -55,7 +55,7 @@ class SchemaDumperExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('oro_migration_get_schema_column_options', [$this, 'getColumnOptions']),
+            new \Twig_SimpleFunction('okvpn_migration_get_schema_column_options', [$this, 'getColumnOptions']),
         ];
     }
 

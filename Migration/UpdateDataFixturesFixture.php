@@ -1,11 +1,11 @@
 <?php
 
-namespace Oro\Bundle\MigrationBundle\Migration;
+namespace Okvpn\Bundle\MigrationBundle\Migration;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
-use Oro\Bundle\MigrationBundle\Entity\DataFixture;
+use Okvpn\Bundle\MigrationBundle\Entity\DataFixture;
 
 class UpdateDataFixturesFixture extends AbstractFixture
 {
@@ -37,7 +37,7 @@ class UpdateDataFixturesFixture extends AbstractFixture
                 $dataFixture = null;
                 if ($version !== null) {
                     $dataFixture = $manager
-                        ->getRepository('OroMigrationBundle:DataFixture')
+                        ->getRepository('OkvpnMigrationBundle:DataFixture')
                         ->findOneBy(['className' => $className]);
                 }
                 if (!$dataFixture) {

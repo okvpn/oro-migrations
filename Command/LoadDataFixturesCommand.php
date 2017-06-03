@@ -1,6 +1,8 @@
 <?php
 
-namespace Oro\Bundle\MigrationBundle\Command;
+namespace Okvpn\Bundle\MigrationBundle\Command;
+
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -8,12 +10,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-use Oro\Bundle\MigrationBundle\Migration\DataFixturesExecutorInterface;
-use Oro\Bundle\MigrationBundle\Migration\Loader\DataFixturesLoader;
+use Okvpn\Bundle\MigrationBundle\Migration\DataFixturesExecutorInterface;
+use Okvpn\Bundle\MigrationBundle\Migration\Loader\DataFixturesLoader;
+
 
 class LoadDataFixturesCommand extends ContainerAwareCommand
 {
-    const COMMAND_NAME = 'oro:migration:data:load';
+    const COMMAND_NAME = 'okvpn:migration:data:load';
 
     const MAIN_FIXTURES_TYPE = DataFixturesExecutorInterface::MAIN_FIXTURES;
     const DEMO_FIXTURES_TYPE = DataFixturesExecutorInterface::DEMO_FIXTURES;
@@ -77,7 +80,6 @@ class LoadDataFixturesCommand extends ContainerAwareCommand
                 $this->processFixtures($input, $output, $fixtures);
             }
         }
-
         return 0;
     }
 
@@ -89,19 +91,17 @@ class LoadDataFixturesCommand extends ContainerAwareCommand
      */
     protected function getFixtures(InputInterface $input, OutputInterface $output)
     {
-        /** @var DataFixturesLoader $loader */
-        $loader = $this->getContainer()->get('oro_migration.data_fixtures.loader');
-        $includeBundles = $input->getOption('bundles');
+        $loader = $this->getContainer()->get('okvpn_migration.data_fixtures.loader');
+        $bundles = $input->getOption('bundles');
         $excludeBundles = $input->getOption('exclude');
         $fixtureRelativePath = $this->getFixtureRelativePath($input);
 
-        /** @var BundleInterface[] $bundles */
-        $bundles = $this->getApplication()->getKernel()->getBundles();
-        foreach ($bundles as $bundle) {
-            if (!empty($includeBundles) && !in_array($bundle->getName(), $includeBundles, true)) {
+        /** @var BundleInterface $bundle */
+        foreach ($this->getApplication()->getKernel()->getBundles() as $bundle) {
+            if (!empty($bundles) && !in_array($bundle->getName(), $bundles)) {
                 continue;
             }
-            if (!empty($excludeBundles) && in_array($bundle->getName(), $excludeBundles, true)) {
+            if (!empty($excludeBundles) && in_array($bundle->getName(), $excludeBundles)) {
                 continue;
             }
             $path = $bundle->getPath() . $fixtureRelativePath;
@@ -149,24 +149,13 @@ class LoadDataFixturesCommand extends ContainerAwareCommand
             )
         );
 
-        $this->executeFixtures($output, $fixtures, $this->getTypeOfFixtures($input));
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @param array           $fixtures
-     * @param string          $fixturesType
-     */
-    protected function executeFixtures(OutputInterface $output, $fixtures, $fixturesType)
-    {
-        /** @var DataFixturesExecutorInterface $loader */
-        $executor = $this->getContainer()->get('oro_migration.data_fixtures.executor');
+        $executor = new ORMExecutor($this->getContainer()->get('doctrine.orm.entity_manager'));
         $executor->setLogger(
             function ($message) use ($output) {
                 $output->writeln(sprintf('  <comment>></comment> <info>%s</info>', $message));
             }
         );
-        $executor->execute($fixtures, $fixturesType);
+        $executor->execute($fixtures, true);
     }
 
     /**
@@ -184,7 +173,7 @@ class LoadDataFixturesCommand extends ContainerAwareCommand
      */
     protected function getFixtureRelativePath(InputInterface $input)
     {
-        $fixtureRelativePath = $this->getTypeOfFixtures($input) === self::DEMO_FIXTURES_TYPE
+        $fixtureRelativePath = $this->getTypeOfFixtures($input) == self::DEMO_FIXTURES_TYPE
             ? self::DEMO_FIXTURES_PATH
             : self::MAIN_FIXTURES_PATH;
 
